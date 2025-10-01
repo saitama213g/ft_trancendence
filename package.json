@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
     "build": "tsc",
-    "start": "node src/server.ts"
+    "start": "node dist/server.js"
   },
   "repository": {
     "type": "git",
@@ -20,10 +20,12 @@
   },
   "homepage": "https://github.com/saitama213g/ft_trancendence#readme",
   "dependencies": {
-    "fastify": "^5.6.0"
+    "fastify": "^5.6.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/node": "^24.5.1",
+    "@types/sqlite3": "^3.1.11",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"

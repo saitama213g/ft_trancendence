@@ -4,7 +4,7 @@ import sqlite3 from "sqlite3";
 const fastify = Fastify({ logger: true });
 
 // Open the database
-const db = new sqlite3.Database("./src/database.sqlite");
+const db = new sqlite3.Database("./src/database/database.sqlite");
 
 // Create a table if it doesn't exist
 db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)");
