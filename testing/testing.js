@@ -1,4 +1,4 @@
-const { rejects } = require("assert");
+// const { rejects } = require("assert");
 
 // Define an async function
 async function fetchData() {
@@ -12,7 +12,7 @@ async function fetchData() {
 }
 
 // Call the async function
-fetchData().then((result) => {console.log(result)});
+fetchData().then((result) => {console.log(result)}).catch((error) => {console.error(error)});
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
