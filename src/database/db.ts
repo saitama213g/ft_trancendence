@@ -5,6 +5,9 @@ export class DatabaseClient {
 
   constructor(filename: string = "database.sqlite") {
     this.db = new Database(filename);
+    this.db.prepare("INSERT INTO users (name, email) VALUES (?, ?)")
+    .run("anwar", "anwar@gmail.com");
+    // create data table users if not exists
   }
 
   getUserById(id: number) {
