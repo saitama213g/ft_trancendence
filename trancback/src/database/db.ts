@@ -3,10 +3,10 @@ import Database from "better-sqlite3";
 export class DatabaseClient {
   private db: Database.Database;
 
-  constructor(filename: string = "database.sqlite") {
+  constructor(filename: string = "src/database/database.sqlite") {
     this.db = new Database(filename);
-    this.db.prepare("INSERT INTO users (name, email) VALUES (?, ?)")
-    .run("anwar", "anwar@gmail.com");
+    // this.db.prepare("INSERT INTO users (username, avatar_url) VALUES (?, ?)")
+    // .run("anwar", "anwar@gmail.com");
     // create data table users if not exists
   }
 

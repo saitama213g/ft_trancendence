@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js", 
-    "migrate" : "sqlite3 src/database/database.sqlite < src/database/schema.sql"
+    "start": "node dist/server.js",
+    "migrate": "sqlite3 src/database/database.sqlite < src/database/schema.sql"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,9 @@
   "dependencies": {
     "better-sqlite3": "^12.4.1",
     "fastify": "^5.6.0",
+    "next": "^15.5.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
