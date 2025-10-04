@@ -10,10 +10,12 @@ export class UserRepository {
 
   getAll(): User[] {
     return this.db.prepare("SELECT * FROM users").all() as User[];
-  }
+  } 
 
   addUser(username: string): User {
     const result = this.db.prepare("INSERT INTO users (username) VALUES (?)").run(username);
     return { id: result.lastInsertRowid as number, username, level: 1, xp: 0 };
   }
+
+
 }

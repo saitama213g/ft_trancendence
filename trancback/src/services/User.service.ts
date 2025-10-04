@@ -8,8 +8,10 @@ export class UserService {
     this.userRepository = new UserRepository();
   }
 
-  getUserById(id: number): User | undefined {
-    return this.userRepository.getUserById(id);
+  getUserById(id: number): User {
+    const user = this.userRepository.getUserById(id);
+    if (!user) throw new Error("User not found");
+    return user;
   }
 
   getAllUsers(): User[] {

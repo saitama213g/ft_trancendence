@@ -1,25 +1,33 @@
 import Fastify from "fastify";
 import sqlite3 from "sqlite3";
 import userRoutes from "./routes/User.route";
+import inviteRoutes from "./routes/Invite.routes";
 // import "./types/fastify";
 // / <reference path="../types/fastify.d.ts" />
 
 const fastify = Fastify({ logger: true });
 
 fastify.register(userRoutes, { prefix: "/users" });
+fastify.register(inviteRoutes, { prefix: "/invites" });
+// fastify.register(inviteRoutes, { prefix: "/invite" });
 
 fastify.setErrorHandler((error, request, reply) => {
-  // Log the error for debugging purposes
+  // Log the full error (stack trace) to the console or logger
   request.log.error(error);
 
-  // Customize the response based on the error type or status code
+  // Detect 404s or custom errors
   if (error.statusCode === 404) {
     reply.status(404).send({ message: 'Resource not found' });
   } else {
-    // For other errors, send a generic internal server error
-    reply.status(500).send({ message: 'Internal Server Error 1' });
+    // Show detailed message only in dev mode
+    const isDev = process.env.NODE_ENV !== 'production';
+    reply.status(500).send({
+      message: isDev ? error.message : 'Internal Server Error',
+      stack: isDev ? error.stack : undefined,
+    });
   }
 });
+
 
 // start server
 const start = async () => {

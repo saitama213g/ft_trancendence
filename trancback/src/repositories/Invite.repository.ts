@@ -1,9 +1,14 @@
 import {DatabaseClient} from "./Database.client";
 import {Invite} from "../models/Invite.model";
-import {User} from "../models/User.model";
+import { stat } from "fs";
 
 export class InviteRepository {
   private db = DatabaseClient.getConnection();
+
+  getAllInvites(): Invite[]
+  {
+    return this.db.prepare("SELECT * FROM invites").all() as Invite[];
+  }
 
   getSenderInvites(sender_id: number): Invite[]
   {
@@ -15,9 +20,16 @@ export class InviteRepository {
     return this.db.prepare("SELECT * FROM invites WHERE reciever_id = ?").all(reciever_id) as Invite[];
   }
 
-  addInvite(sender_id:number , reciever_id:number) : Invite{
-    var varii = this.db.prepare("INSERT into invites (sender_id, reciever_id) VALUES (?, ?)");
-    const result = varii.run(sender_id , reciever_id);
+  updateStatus(sender_id: number, receiver_id: number, status: string): void {
+    this.db.prepare(`
+      UPDATE invites SET status = ?
+      WHERE sender_id = ? AND receiver_id = ?
+    `).run(status, sender_id, receiver_id);
+  }
+
+  addInvite(sender_id:number, reciever_id:number) : Invite {
+    var prep = this.db.prepare("INSERT into invites (sender_id, receiver_id) VALUES (?, ?)");
+    const result = prep.run(sender_id , reciever_id);
     const inserted = this.db.prepare("SELECT * FROM invites WHERE id = ?").get(result.lastInsertRowid);
     return inserted as Invite;
   }
