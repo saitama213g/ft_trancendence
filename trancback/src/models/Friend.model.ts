@@ -5,4 +5,3 @@ export interface Friend {
     friend_id: number;                    // References users.id
     status: "accepted" | "pending" | "blocked"; // Default = 'pending'
 }
-  

@@ -1,4 +1,3 @@
-import Database from "better-sqlite3";
 import {DatabaseClient} from "./Database.client";
 import {User} from "../models/User.model";
 

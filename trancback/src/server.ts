@@ -8,6 +8,19 @@ const fastify = Fastify({ logger: true });
 
 fastify.register(userRoutes, { prefix: "/users" });
 
+fastify.setErrorHandler((error, request, reply) => {
+  // Log the error for debugging purposes
+  request.log.error(error);
+
+  // Customize the response based on the error type or status code
+  if (error.statusCode === 404) {
+    reply.status(404).send({ message: 'Resource not found' });
+  } else {
+    // For other errors, send a generic internal server error
+    reply.status(500).send({ message: 'Internal Server Error 1' });
+  }
+});
+
 // start server
 const start = async () => {
   try {
