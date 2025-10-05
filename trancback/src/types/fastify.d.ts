@@ -1,11 +1,7 @@
-// import "fastify";
-// import sqlite3 from "sqlite3";
+import 'fastify';
 
-// declare module "fastify" {
-//   interface FastifyInstance {
-//     db: sqlite3.Database;
-//   }
-// }
-// export {
-  
-// };
+declare module 'fastify' {
+  interface FastifyInstance {
+    authenticate: (request: any, reply: any) => Promise<void>;
+  }
+}

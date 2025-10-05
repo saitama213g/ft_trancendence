@@ -13,13 +13,14 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Games Table
 CREATE TABLE IF NOT EXISTS games (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  opponent_name TEXT NOT NULL,
-  score INTEGER,
-  result TEXT CHECK(result IN ('win', 'loss')),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    opponent_id INTEGER NOT NULL,
+    score INTEGER,
+    result TEXT CHECK(result IN ('win', 'loss')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (opponent_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Friends Table
