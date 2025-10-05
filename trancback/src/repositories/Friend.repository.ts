@@ -6,18 +6,26 @@ const db = DatabaseClient.getConnection();
 export class FriendRepository {
 
   // Add a new friend relation
-  addFriend(user_id: number, friend_id: number, status: string = "accepted"): Friend {
+  addFriend(user_id: number, friend_id: number): Friend {
     const stmt = db.prepare(`
       INSERT INTO friends (user_id, friend_id, status)
       VALUES (?, ?, ?)
     `);
-    const result = stmt.run(user_id, friend_id, status);
+    const result = stmt.run(user_id, friend_id, "friends");
 
     const inserted = db.prepare(`
       SELECT * FROM friends WHERE id = ?
     `).get(result.lastInsertRowid);
 
     return inserted as Friend;
+  }
+
+  updateFriendStatus(user_id: number, friend_id: number, status: string): void {
+    db.prepare(`
+      UPDATE friends
+      SET status = ?
+      WHERE user_id = ? AND friend_id = ?
+    `).run(status, user_id, friend_id);
   }
 
   // Get all friends of a specific user

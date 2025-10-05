@@ -1,7 +1,7 @@
 import Fastify from "fastify";
-import sqlite3 from "sqlite3";
 import userRoutes from "./routes/User.route";
 import inviteRoutes from "./routes/Invite.routes";
+import friendRoutes from "./routes/Friends.routes";
 // import "./types/fastify";
 // / <reference path="../types/fastify.d.ts" />
 
@@ -9,6 +9,7 @@ const fastify = Fastify({ logger: true });
 
 fastify.register(userRoutes, { prefix: "/users" });
 fastify.register(inviteRoutes, { prefix: "/invites" });
+fastify.register(friendRoutes, { prefix: "/friends" });
 // fastify.register(inviteRoutes, { prefix: "/invite" });
 
 fastify.setErrorHandler((error, request, reply) => {
