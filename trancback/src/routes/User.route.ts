@@ -6,7 +6,8 @@ const invitecontroller = new InviteController();
 
 export default async function userRoutes( fastify: FastifyInstance, options: FastifyPluginOptions) {
   fastify.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
-    return usercontroller.getAllUsers();});
+    return usercontroller.getAllUsers();
+  });
 
   fastify.get("/:id", async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
