@@ -1,89 +1,50 @@
-// import fastify from "fastify";
-// import userRoutes from "./routes/User.route";
-// import inviteRoutes from "./routes/Invite.routes";
-// import friendRoutes from "./routes/Friend.routes";
-// import gameRoutes from "./routes/Game.routes";
-// import fjwt from '@fastify/jwt';
-// import authenticate from "./authenticate";
-// import authroutes from "./routes/Auth.routes";
+import Fastify from "fastify";
+import { Server as SocketIOServer, Socket } from "socket.io";
+import { createServer } from "http";
 
-// declare module 'fastify' {
-//   interface FastifyInstance {
-//     authenticate: any;
-//   }
-// }
+const fastify = Fastify();
 
-// const app = fastify({ logger: true });
-// app.register(fjwt, {
-//   secret: 'your-secret-key'
-// });
+// Create HTTP server manually for Socket.IO
+const httpServer = createServer(fastify.server);
 
-// app.register(userRoutes, { prefix: "/users" }); 
-// app.register(inviteRoutes, { prefix: "/invites" });
-// app.register(friendRoutes, { prefix: "/friends" });
-// app.register(gameRoutes, { prefix: "/games" });
-// app.register(authroutes, { prefix: "/login" });
+// Attach Socket.IO
+const io = new SocketIOServer(httpServer, {
+  cors: {
+    origin: "*", // allow any origin for testing
+  },
+});
 
-// app.decorate("authenticate", authenticate);
-// app.setErrorHandler((error, request, reply) => {
-//   // Log the full error (stack trace) to the console or logger
-//   request.log.error(error);
+// Listen for socket connections
+io.on("connection", (socket: Socket) => {
+  console.log("User connected:", socket.id);
 
-//   // Detect 404s or custom errors
-//   if (error.statusCode === 404) {
-//     reply.status(404).send({ message: 'Resource not found' });
-//   } else {
-//     // Show detailed message only in dev mode
-//     const isDev = process.env.NODE_ENV !== 'production';
-//     reply.status(500).send({
-//       message: isDev ? error.message : 'Internal Server Error',
-//       stack: isDev ? error.stack : undefined,
-//     });
-//   }
-// });
+  socket.emit("welcome", "Hello from server!");
 
-// // start server
+  socket.on("message", (msg: string) => {
+    console.log("Received:", msg);
+    io.emit("message", msg); // broadcast to everyone including sender
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+
+
+// Start the server
 // const start = async () => {
 //   try {
-//     await app.listen({ port: 4000 });
-//     console.log("Server running on http://localhost:4000");
+//     await fastify.listen({ port: 3001 });
+//     console.log("🚀 Server running at http://localhost:3001");
 //   } catch (err) {
-//     app.log.error(err);
+//     console.error(err);
 //     process.exit(1);
 //   }
 // };
 
+// Start HTTP server (Socket.IO listens here)
+httpServer.listen(3001, () => {
+  console.log("✅ Socket.IO listening on port 3001");
+});
+
 // start();
-import Fastify from "fastify";
-// @ts-ignore
-import fastifyIO from "fastify-socket.io";
-import { Socket } from "socket.io";
-
-const fastify = Fastify();
-
-// Register socket.io plugin
-fastify.register(fastifyIO);
-
-// Wait until Fastify is ready before using .io
-fastify.ready().then(() => {
-  fastify.io.on("connection", (socket: Socket) => {
-    console.log("A user connected:", socket.id);
-
-    socket.emit("welcome", "Hello from server!");
-
-    socket.on("message", (msg: string) => {
-      console.log("Received:", msg);
-      socket.broadcast.emit("message", msg);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
-    });
-  });
-});
-
-fastify.listen({ port: 3001 }, (err, address) => {
-  if (err) throw err;
-  console.log(`✅ Server running at ${address}`);
-});
-
