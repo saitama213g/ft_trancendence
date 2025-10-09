@@ -18,6 +18,13 @@ export class InviteController {
         return this.inviteservice.addInvite(reciever_id, sender_id);
     }
     acceptInvite(sender_id: number, receiver_id: number) {
+        // Check if invite exists
+        const inviteExists = this.inviteservice.inviteExists(sender_id, receiver_id);
+        if (!inviteExists) {
+            return { success: false, message: "Invite does not exist" };
+        }
+    
+        // Update invite status
         return this.inviteservice.setInviteStatus(sender_id, receiver_id, "accepted");
     }
     declineInvite(sender_id: number, receiver_id: number) {

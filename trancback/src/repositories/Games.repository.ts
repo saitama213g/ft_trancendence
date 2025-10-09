@@ -7,9 +7,9 @@ export class GamesRepository {
     // Add a new game
     addGame(game: Game) {
         const stmt = this.db.prepare(
-        `INSERT INTO games (user_id, opponent_name, score, result) VALUES (?, ?, ?, ?)`
+        `INSERT INTO games (user_id, opponent_id, score, result) VALUES (?, ?, ?, ?)`
         );
-        const info = stmt.run(game.user_id, game.opponent_name, game.score, game.result);
+        const info = stmt.run(game.user_id, game.opponent_id, game.score, game.result);
         return info.lastInsertRowid;
     }
 
@@ -29,5 +29,10 @@ export class GamesRepository {
     deleteGame(id: number) {
         const stmt = this.db.prepare(`DELETE FROM games WHERE id = ?`);
         return stmt.run(id);
+    }
+
+    getAllGames() {
+        const stmt = this.db.prepare("SELECT * FROM games");
+        return stmt.all();
     }
 }

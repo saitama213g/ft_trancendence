@@ -22,6 +22,7 @@
   "homepage": "https://github.com/saitama213g/ft_trancendence#readme",
   "dependencies": {
     "@fastify/jwt": "^10.0.0",
+    "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.4.1",
     "fastify": "^5.6.0",
     "next": "^15.5.4",
@@ -30,6 +31,7 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.6.2",
     "@types/sqlite3": "^3.1.11",

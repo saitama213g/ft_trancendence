@@ -2,11 +2,19 @@ import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } f
 import { UserController } from "../controllers/User.controller";
 import {InviteController} from "../controllers/Invite.controller";
 const usercontroller = new UserController();
-const invitecontroller = new InviteController();
+// const invitecontroller = new InviteController();
 
 export default async function userRoutes( fastify: FastifyInstance, options: FastifyPluginOptions) {
   fastify.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
     return usercontroller.getAllUsers();
+  });
+
+  fastify.post("/register", async (request: FastifyRequest, reply: FastifyReply) => {
+    return usercontroller.addNewUser(fastify, request, reply);
+  });
+
+  fastify.delete("/:id", async (request, reply) => {
+    return usercontroller.deleteUser(fastify, request, reply);
   });
 
   fastify.get("/:id", async (request: FastifyRequest, reply: FastifyReply) => {
@@ -17,12 +25,9 @@ export default async function userRoutes( fastify: FastifyInstance, options: Fas
 
   fastify.get("/add_user", async (request: FastifyRequest, reply: FastifyReply) => {
     const query = request.query as { id?: string; username?: string; level?: string };
-  
-    const userId = query.id ? Number(query.id) : undefined;
+    // const userId = query.id ? Number(query.id) : undefined;
     const username = String(query.username);
-    const userLevel = query.level ? Number(query.level) : 1; // default level
-  
+    // const userLevel = query.level ? Number(query.level) : 1; // default level
     return usercontroller.addUser(username); // pass username (required)
   });
 }
-

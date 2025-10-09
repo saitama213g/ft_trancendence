@@ -9,55 +9,44 @@ export default async function gamesRoutes(
   options: FastifyPluginOptions
 ) {
   // Get all games for a user
-    fastify.get("/user/:user_id", async (request: FastifyRequest, reply: FastifyReply) => {
-        const { user_id } = request.params as { user_id: string };
-        const id = Number(user_id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-        return reply.status(400).send({ message: "Invalid user ID" });
-        }
-
-        const games = gamesController.getGamesByUser(id);
-        return reply.send(games);
+    fastify.get("/",{ preHandler: [fastify.authenticate] },  async (request: FastifyRequest, reply: FastifyReply) => {
+      return gamesController.getGamesByUser(request, reply);
     });
 
     // Get a single game by ID
-    fastify.get("/:id", async (request: FastifyRequest, reply: FastifyReply) => {
-        const { id } = request.params as { id: string };
-        const gameId = Number(id);
+    // fastify.get("/:id",{ preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    //     const { id } = request.params as { id: string };
+    //     const gameId = Number(id);
 
-        if (!Number.isInteger(gameId) || gameId <= 0) {
-        return reply.status(400).send({ message: "Invalid game ID" });
-        }
+    //     if (!Number.isInteger(gameId) || gameId <= 0) {
+    //     return reply.status(400).send({ message: "Invalid game ID" });
+    //     }
 
-        const game = gamesController.getGameById(gameId);
-        if (!game) return reply.status(404).send({ message: "Game not found" });
+    //     const game = gamesController.getGameById(gameId);
+    //     if (!game) return reply.status(404).send({ message: "Game not found" });
 
-        return reply.send(game);
+    //     return reply.send(game);
+    // });
+    fastify.get("/games", async (request, reply) => {
+      return gamesController.getAllGames(fastify, request, reply);
     });
-
     // Add a new game
-    fastify.post("/", async (request: FastifyRequest, reply: FastifyReply) => {
-        const body = request.body as Partial<Game>;
-
-        if (!body.user_id || !body.opponent_name || body.score === undefined || !body.result) {
-        return reply.status(400).send({ message: "Missing required fields" });
-        }
-
-        const gameId = gamesController.addGame(body as Game);
-        return reply.status(201).send({ message: "Game added", gameId });
+    fastify.post("/add", { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const games = gamesController.addGame(request);
+        return reply.status(201).send({ message: "Game added successfully", games });
+      } catch (error: any) {
+        return reply.status(400).send({ message: error.message || "Failed to add game" });
+      }
     });
 
     // Delete a game
-    fastify.delete("/:id", async (request: FastifyRequest, reply: FastifyReply) => {
-        const { id } = request.params as { id: string };
-        const gameId = Number(id);
-
-        if (!Number.isInteger(gameId) || gameId <= 0) {
-        return reply.status(400).send({ message: "Invalid game ID" });
-        }
-
-        gamesController.deleteGame(gameId);
-        return reply.send({ message: "Game deleted" });
+    fastify.delete("/delete/:id", { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const result = gamesController.deleteGame(request);
+        return reply.status(200).send(result);
+      } catch (error: any) {
+        return reply.status(400).send({ message: error.message || "Failed to delete game" });
+      }
     });
 }

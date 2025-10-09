@@ -26,8 +26,27 @@ export class InviteService{
         return this.inviterepository.addInvite(reciever_usrname, sender_usrname);
     }
 
-    setInviteStatus(sender_id: number, receiver_id: number, status: string) {
-        this.inviterepository.updateStatus(sender_id, receiver_id, status);
-        this.friendRepo.addFriend(sender_id, receiver_id);
+    setInviteStatus(sender_id: number, receiver_id: number, status: "accepted" | "rejected") {
+        // Check valid status
+        if (!["accepted", "rejected"].includes(status)) {
+            return { success: false, message: "Invalid status" };
+        }
+    
+        // Update status and add friend atomically
+        const updated = this.inviterepository.updateStatus(sender_id, receiver_id, status);
+        if (!updated) {
+            return { success: false, message: "Failed to update invite" };
+        }
+    
+        if (status === "accepted") {
+            this.friendRepo.addFriend(sender_id, receiver_id);
+        }
+    
+        return { success: true, message: "Invite processed successfully" };
+    }
+
+    // Helper to check if invite exists
+    inviteExists(sender_id: number, receiver_id: number): boolean {
+        return this.inviterepository.inviteExists(sender_id, receiver_id);
     }
 }

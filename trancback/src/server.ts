@@ -18,7 +18,7 @@ app.register(fjwt, {
   secret: 'your-secret-key'
 });
 
-app.register(userRoutes, { prefix: "/users" });
+app.register(userRoutes, { prefix: "/users" }); 
 app.register(inviteRoutes, { prefix: "/invites" });
 app.register(friendRoutes, { prefix: "/friends" });
 app.register(gameRoutes, { prefix: "/games" });
@@ -41,7 +41,6 @@ app.setErrorHandler((error, request, reply) => {
     });
   }
 });
-
 
 // start server
 const start = async () => {

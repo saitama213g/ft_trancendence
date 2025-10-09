@@ -11,3 +11,11 @@
   },
   "include": ["src/**/*"]
 }
+
+// {
+// 	"opponent_id": 10,
+// 	"score": "hello",
+// 	"result": "win"
+// }
+
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywidXNlcm5hbWUiOiJoZWxsbyIsImVtYWlsIjoiMTAiLCJpYXQiOjE3NjAwMjc0Mzh9.W5bpKoWZknCDyXO5tcDVVs4j_Dcm1zO7dCC-35ZrKvs
