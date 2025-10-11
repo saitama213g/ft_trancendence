@@ -32,7 +32,7 @@ export default function SocketTest() {
     // });
     // Connect to server
     socket = io("https://fantastic-train-jpw5j99j5q6c5gq-3001.app.github.dev/", {
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
       secure: true,
     });
 
