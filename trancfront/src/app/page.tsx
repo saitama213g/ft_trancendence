@@ -8,13 +8,6 @@ let socket: Socket;
 
 export default function SocketTest() {
 
-  const user : {
-    id: string;
-    name: string;
-  } = {
-    id: "1",
-    name: "John Doe"
-  }
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [input2, setInput2] = useState("");
@@ -23,8 +16,25 @@ export default function SocketTest() {
 
   useEffect(() => {
     console.log("Connecting to server...");
+    // fetch("https://fantastic-train-jpw5j99j5q6c5gq-3001.app.github.dev/ping")
+    // .then((res) => {
+    //   if (res.ok) {
+    //     console.log("✅ Backend is reachable!");
+    //     setMessages((prev) => [...prev, "Backend is reachable"]);
+    //   } else {
+    //     console.warn("⚠️ Backend responded but with status:", res.status);
+    //     setMessages((prev) => [...prev, "Backend responded with status: " + res.status]);
+    //   }
+    // })
+    // .catch((err) => {
+    //   console.error("❌ Backend is NOT reachable:", err.message);
+    //   setMessages((prev) => [...prev, "Backend is NOT reachable: " + err.message]);
+    // });
     // Connect to server
-    socket = io("http://localhost:3001");
+    socket = io("https://fantastic-train-jpw5j99j5q6c5gq-3001.app.github.dev/", {
+      transports: ["websocket"],
+      secure: true,
+    });
 
     // Listen for welcome message
     socket.on("welcome", (msg: string) => {

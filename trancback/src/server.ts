@@ -4,6 +4,10 @@ import { createServer } from "http";
 
 const fastify = Fastify();
 
+fastify.get("/ping", async () => {
+  return { status: "ok" };
+});
+
 // Create HTTP server manually for Socket.IO
 const httpServer = createServer(fastify.server);
 
