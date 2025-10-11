@@ -1,15 +1,28 @@
 "use client";
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import Settings from "./settings/page";
+import { useBearCreator } from "@/stores/counter";
 
 let socket: Socket;
 
 export default function SocketTest() {
+
+  const user : {
+    id: string;
+    name: string;
+  } = {
+    id: "1",
+    name: "John Doe"
+  }
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [input2, setInput2] = useState("");
+  const { bears } = useBearCreator();
+
 
   useEffect(() => {
+    console.log("Connecting to server...");
     // Connect to server
     socket = io("http://localhost:3001");
 
@@ -70,6 +83,9 @@ export default function SocketTest() {
         style={{ marginRight: 10 }}
       />
       <button onClick={sendMessage}>Send</button>
+
+      <h1>Number of bears from store: <strong>{bears}</strong></h1>
+      <Settings />
     </div>
   );
 }
