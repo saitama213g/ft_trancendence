@@ -12,18 +12,25 @@ export const Sidebar = () => {
 
     return (
         <aside className={style['sidebar']}>
-            <div className={style['sidebar-logo-placeholder']}></div>
-            <nav>
-                {navItems.map((item, index) => (
-                    <button key={index} className={`${style['nav-button']} ${item.active ? style['active'] : ''}`}>
-                        {item.icon}
+            <div className={style['sidebar-inner']}>
+                {/* Logo at the top, centered horizontally */}
+                <div className={style['sidebar-logo-placeholder']} style={{ marginBottom: '2rem' }}></div>
+                {/* Centered nav */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <nav>
+                        {navItems.map((item, index) => (
+                            <button key={index} className={`${style['nav-button']} ${item.active ? style['active'] : ''}`}>
+                                {item.icon}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+                {/* Question mark at the bottom, centered horizontally */}
+                <div className={style['sidebar-footer']}>
+                    <button>
+                        <QuestionMarkCircleIcon />
                     </button>
-                ))}
-            </nav>
-            <div className={style['sidebar-footer']}>
-                <button>
-                    <QuestionMarkCircleIcon />
-                </button>
+                </div>
             </div>
         </aside>
     );

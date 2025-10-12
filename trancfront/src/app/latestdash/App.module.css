@@ -1,0 +1,94 @@
+.app {
+  position: relative;
+  min-height: 100vh;
+  background-color: #f3f4f8;
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .app {
+    display: flex;
+  }
+}
+
+.main {
+  flex: 1;
+  padding: 1rem;
+  transition: all 0.3s cubic-bezier(.4, 0, .2, 1);
+}
+
+@media (min-width: 640px) {
+  .main {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    padding: 2.5rem;
+  }
+}
+
+.section {
+  margin-top: 2rem;
+}
+
+.layoutGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+@media (min-width: 1280px) {
+  .layoutGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 1280px) {
+  .leftColumn {
+    grid-column: span 2;
+  }
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .statGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .statGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1280px) {
+  .rightColumn {
+    grid-column: span 1;
+  }
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #9ca3af;
+}
