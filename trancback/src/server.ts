@@ -18,14 +18,14 @@ const io = new SocketIOServer(httpServer, {
   },
 });
 
-var clients: number[] = [];
+var clients: string[] = [];
 
 // Listen for socket connections every time a client connects
 io.on("connection", (socket: Socket) => {
   io.to(socket.id).emit("welcome", socket.id);
   console.log("User connected:", socket.id);
   // push socket.id to an array
-  clients.push(Number(socket.id));
+  clients.push(socket.id);
 
   // console.log("socket====>", socket);
 
@@ -34,7 +34,7 @@ io.on("connection", (socket: Socket) => {
   socket.on("message", (msg) => {
     console.log("Received:", msg);
     // send to a specific user
-    if (msg.id && clients.includes(Number(msg.id)))
+    if (msg.id && clients.includes(msg.id))
       io.to(msg.id).emit("message", {message: msg.message, socketId: socket.id});
     else
       io.to(socket.id).emit("message", {message: msg.message, socketId: socket.id}); // broadcast to everyone including sender
