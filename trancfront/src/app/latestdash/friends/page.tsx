@@ -2,6 +2,7 @@
 
 import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import layoutStyles from "../App.module.css";
@@ -13,6 +14,7 @@ interface Friend {
   username: string;
   online: boolean;
   lastActive: string;
+  avatar: string;
 }
 
 interface Invite {
@@ -23,13 +25,62 @@ interface Invite {
 }
 
 const initialFriends: Friend[] = [
-  { id: 1, name: "Alex Morgan", username: "alexm", online: true, lastActive: "Online now" },
-  { id: 2, name: "Sofia Alvarez", username: "sofia.a", online: true, lastActive: "Online now" },
-  { id: 3, name: "Jordan Lee", username: "jordanlee", online: false, lastActive: "Last seen 15m ago" },
-  { id: 4, name: "Maya Patel", username: "maya.p", online: false, lastActive: "Last seen 2h ago" },
-  { id: 5, name: "Maya Patel", username: "maya.p", online: false, lastActive: "Last seen 2h ago" },
-  { id: 6, name: "Maya Patel", username: "maya.p", online: false, lastActive: "Last seen 2h ago" },
-  { id: 7, name: "Maya Patel", username: "maya.p", online: false, lastActive: "Last seen 2h ago" },
+  {
+    id: 1,
+    name: "Alex Morgan",
+    username: "alexm",
+    online: true,
+    lastActive: "Online now",
+    avatar: "/profile/default-avatar.svg",
+  },
+  {
+    id: 2,
+    name: "Sofia Alvarez",
+    username: "sofia.a",
+    online: true,
+    lastActive: "Online now",
+    avatar: "/profile/default-avatar.svg",
+  },
+  {
+    id: 3,
+    name: "Jordan Lee",
+    username: "jordanlee",
+    online: false,
+    lastActive: "Last seen 15m ago",
+    avatar: "/profile/default-avatar.svg",
+  },
+  {
+    id: 4,
+    name: "Maya Patel",
+    username: "maya.p",
+    online: false,
+    lastActive: "Last seen 2h ago",
+    avatar: "/profile/default-avatar.svg",
+  },
+  {
+    id: 5,
+    name: "Maya Patel",
+    username: "maya.p",
+    online: false,
+    lastActive: "Last seen 2h ago",
+    avatar: "/profile/default-avatar.svg",
+  },
+  {
+    id: 6,
+    name: "Maya Patel",
+    username: "maya.p",
+    online: false,
+    lastActive: "Last seen 2h ago",
+    avatar: "/profile/default-avatar.svg",
+  },
+  {
+    id: 7,
+    name: "Maya Patel",
+    username: "maya.p",
+    online: false,
+    lastActive: "Last seen 2h ago",
+    avatar: "/profile/default-avatar.svg",
+  },
 ];
 
 const initialInvites: Invite[] = [
@@ -216,20 +267,29 @@ const FriendsPage: React.FC = () => {
                 <div className={styles.friendList}>
                   {filteredFriends.map((friend) => (
                     <article key={friend.id} className={styles.friendItem}>
-                      <div className={styles.statusIndicator}>
+                      <div className={styles.friendAvatar}>
+                        <Image
+                          src={friend.avatar}
+                          alt={`${friend.name}'s avatar`}
+                          width={44}
+                          height={44}
+                          className={styles.friendAvatarImage}
+                        />
                         <span
-                          className={`${styles.friendStatus} ${friend.online ? styles.online : ""}`}
+                          className={`${styles.statusDot} ${friend.online ? styles.statusDotOnline : ""}`}
                           aria-hidden
                         />
-                        <span className={styles.friendPill}>
-                          {friend.online ? "Online" : "Offline"}
-                        </span>
                       </div>
                       <div className={styles.friendInfo}>
                         <span className={styles.friendName}>{friend.name}</span>
-                        <span className={styles.friendMeta}>@{friend.username}</span>
+                        <span className={styles.friendUsername}>@{friend.username}</span>
                       </div>
-                      <span className={styles.friendMeta}>{friend.lastActive}</span>
+                      <div className={styles.friendStatusBlock}>
+                        <span className={styles.friendPill}>
+                          {friend.online ? "Online" : "Offline"}
+                        </span>
+                        <span className={styles.friendLastActive}>{friend.lastActive}</span>
+                      </div>
                     </article>
                   ))}
                 </div>
