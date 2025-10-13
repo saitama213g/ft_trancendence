@@ -1,4 +1,8 @@
+"use client";
+
 import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import styles from './Sidebar.module.css';
 
 const LogoIcon = () => (
@@ -9,13 +13,20 @@ const LogoIcon = () => (
     </svg>
 );
 
-const NavIcon: React.FC<{ active?: boolean; children: React.ReactNode; 'aria-label': string }> = ({ active = false, children, 'aria-label': ariaLabel }) => {
+interface NavIconProps {
+    href: string;
+    active?: boolean;
+    children: React.ReactNode;
+    'aria-label': string;
+}
+
+const NavIcon: React.FC<NavIconProps> = ({ href, active = false, children, 'aria-label': ariaLabel }) => {
     const linkClass = active ? `${styles.navLink} ${styles.active}` : styles.navLink;
     return (
         <li>
-            <a href="#" className={linkClass} aria-label={ariaLabel} title={ariaLabel}>
+            <Link href={href} className={linkClass} aria-label={ariaLabel} title={ariaLabel}>
                 {children}
-            </a>
+            </Link>
         </li>
     );
 };
@@ -29,6 +40,12 @@ const StatsIcon = () => (
 const FriendsIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className={styles.navSvg} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.124-1.282-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.124-1.282.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+);
+const ProfileIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={styles.navSvg} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 22c0-4.418 3.582-8 8-8s8 3.582 8 8" />
     </svg>
 );
 const AppearanceIcon = () => (
@@ -49,6 +66,8 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
+    const pathname = usePathname();
+
     return (
       <>
         <aside className={`${styles.sidebar} ${styles.desktopSidebar}`}>
@@ -57,17 +76,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             </div>
             <nav>
                 <ul className={styles.navList}>
-                    <NavIcon active={true} aria-label="Stats"><StatsIcon /></NavIcon>
-                    <NavIcon aria-label="Friends"><FriendsIcon /></NavIcon>
-                    <NavIcon aria-label="Appearance"><AppearanceIcon /></NavIcon>
+                    <NavIcon href="/latestdash" active={pathname === '/latestdash'} aria-label="Stats"><StatsIcon /></NavIcon>
+                    <NavIcon href="/latestdash/profile" active={pathname?.startsWith('/latestdash/profile')} aria-label="Profile"><ProfileIcon /></NavIcon>
+                    <NavIcon href="/latestdash/friends" active={pathname?.startsWith('/latestdash/friends')} aria-label="Friends"><FriendsIcon /></NavIcon>
+                    <NavIcon href="/latestdash/settings" active={pathname?.startsWith('/latestdash/settings')} aria-label="Settings"><SettingsIcon /></NavIcon>
                 </ul>
             </nav>
             <div className={styles.footer}>
-                 <NavIcon aria-label="Settings"><SettingsIcon /></NavIcon>
+                 <NavIcon href="#" aria-label="Settings"><SettingsIcon /></NavIcon>
             </div>
         </aside>
 
-        <div className={`${styles.mobileWrapper} ${isOpen ? styles.mobileWrapperVisible : ''}`}>
+        <div className={`${styles.mobileWrapper} ${isOpen ? styles.mobileWrapperVisible : ''}`} aria-hidden>
             <div className={styles.mobileOverlay} onClick={() => setIsOpen(false)}></div>
             <aside className={`${styles.sidebar} ${styles.mobileSidebar} ${isOpen ? styles.mobileOpen : ''}`}>
                 <button onClick={() => setIsOpen(false)} className={styles.closeButton} aria-label="Close sidebar">
@@ -80,13 +100,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                 </div>
                 <nav>
                     <ul className={styles.navList}>
-                        <NavIcon active={true} aria-label="Stats"><StatsIcon /></NavIcon>
-                        <NavIcon aria-label="Friends"><FriendsIcon /></NavIcon>
-                        <NavIcon aria-label="Appearance"><AppearanceIcon /></NavIcon>
+                        <NavIcon href="/latestdash" active={pathname === '/latestdash'} aria-label="Stats"><StatsIcon /></NavIcon>
+                        <NavIcon href="/latestdash/profile" active={pathname?.startsWith('/latestdash/profile')} aria-label="Profile"><ProfileIcon /></NavIcon>
+                        <NavIcon href="/latestdash/friends" active={pathname?.startsWith('/latestdash/friends')} aria-label="Friends"><FriendsIcon /></NavIcon>
+                        <NavIcon href="/latestdash/settings" active={pathname?.startsWith('/latestdash/settings')} aria-label="Settings"><SettingsIcon /></NavIcon>
                     </ul>
                 </nav>
                 <div className={styles.footer}>
-                     <NavIcon aria-label="Settings"><SettingsIcon /></NavIcon>
+                     <NavIcon href="#" aria-label="Settings"><SettingsIcon /></NavIcon>
                 </div>
             </aside>
         </div>
