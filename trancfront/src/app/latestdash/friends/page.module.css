@@ -420,6 +420,8 @@
 
 .inviteActions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.6rem;
 }
 
@@ -441,6 +443,36 @@
 .iconButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 24px rgba(79, 70, 229, 0.25);
+}
+
+.actionButton {
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.acceptButton {
+  background: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
+  color: #ffffff;
+}
+
+.acceptButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(34, 197, 94, 0.22);
+}
+
+.declineButton {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.declineButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.18);
 }
 
 .emptyState {

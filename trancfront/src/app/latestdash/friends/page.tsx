@@ -17,9 +17,16 @@ interface Friend {
   avatar: string;
 }
 
-interface Invite {
+interface SentInvite {
   id: number;
   recipient: string;
+  status: "pending" | "accepted" | "declined";
+  sentAt: string;
+}
+
+interface ReceivedInvite {
+  id: number;
+  sender: string;
   status: "pending" | "accepted" | "declined";
   sentAt: string;
 }
@@ -83,15 +90,138 @@ const initialFriends: Friend[] = [
   },
 ];
 
-const initialInvites: Invite[] = [
+const initialSentInvites: SentInvite[] = [
   { id: 1, recipient: "Kei Tanaka", status: "pending", sentAt: "Oct 10, 2025" },
   { id: 2, recipient: "Lucas Chen", status: "accepted", sentAt: "Oct 08, 2025" },
   { id: 3, recipient: "Priya Singh", status: "declined", sentAt: "Oct 05, 2025" },
 ];
 
+const initialReceivedInvites: ReceivedInvite[] = [
+  { id: 101, sender: "Lena Ortiz", status: "pending", sentAt: "Oct 11, 2025" },
+  { id: 102, sender: "Marcus Reed", status: "accepted", sentAt: "Oct 07, 2025" },
+];
+
+interface SentInvitesSectionProps {
+  invites: SentInvite[];
+  onCancelInvite: (inviteId: number) => void;
+}
+
+const SentInvitesSection: React.FC<SentInvitesSectionProps> = ({ invites, onCancelInvite }) => (
+  <section className={styles.sectionCard}>
+    <div className={styles.sectionHeader}>
+      <h2 className={styles.sectionTitle}>Invites Sent by You</h2>
+    </div>
+
+    {invites.length === 0 ? (
+      <div className={styles.emptyState}>
+        <strong>No active invites</strong>
+        <span>Invite new players and build your team.</span>
+      </div>
+    ) : (
+      <div className={styles.inviteList}>
+        {invites.map((invite) => (
+          <article key={invite.id} className={styles.inviteItem}>
+            <div className={styles.inviteDetails}>
+              <span className={styles.friendName}>{invite.recipient}</span>
+              <span className={styles.friendMeta}>Sent {invite.sentAt}</span>
+              <span className={`${styles.statusPill} ${styles[invite.status]}`}>
+                {invite.status}
+              </span>
+            </div>
+            {invite.status === "accepted" ? (
+              <div className={styles.inviteActions}>
+                <button
+                  className={styles.iconButton}
+                  type="button"
+                  onClick={() => onCancelInvite(invite.id)}
+                  aria-label="Remove accepted invite"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : null}
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+);
+
+interface ReceivedInvitesSectionProps {
+  invites: ReceivedInvite[];
+  onAcceptInvite: (inviteId: number) => void;
+  onDeclineInvite: (inviteId: number) => void;
+  onRemoveInvite: (inviteId: number) => void;
+}
+
+const ReceivedInvitesSection: React.FC<ReceivedInvitesSectionProps> = ({
+  invites,
+  onAcceptInvite,
+  onDeclineInvite,
+  onRemoveInvite,
+}) => (
+  <section className={styles.sectionCard}>
+    <div className={styles.sectionHeader}>
+      <h2 className={styles.sectionTitle}>Invites Sent to You</h2>
+    </div>
+
+    {invites.length === 0 ? (
+      <div className={styles.emptyState}>
+        <strong>No new invites</strong>
+        <span>Your teammates will appear here when they send an invite.</span>
+      </div>
+    ) : (
+      <div className={styles.inviteList}>
+        {invites.map((invite) => (
+          <article key={invite.id} className={styles.inviteItem}>
+            <div className={styles.inviteDetails}>
+              <span className={styles.friendName}>{invite.sender}</span>
+              <span className={styles.friendMeta}>Invited you on {invite.sentAt}</span>
+              <span className={`${styles.statusPill} ${styles[invite.status]}`}>
+                {invite.status}
+              </span>
+            </div>
+            {invite.status === "pending" ? (
+              <div className={styles.inviteActions}>
+                <button
+                  className={`${styles.actionButton} ${styles.acceptButton}`}
+                  type="button"
+                  onClick={() => onAcceptInvite(invite.id)}
+                >
+                  Accept
+                </button>
+                <button
+                  className={`${styles.actionButton} ${styles.declineButton}`}
+                  type="button"
+                  onClick={() => onDeclineInvite(invite.id)}
+                >
+                  Decline
+                </button>
+              </div>
+            ) : null}
+            {invite.status === "accepted" ? (
+              <div className={styles.inviteActions}>
+                <button
+                  className={styles.iconButton}
+                  type="button"
+                  onClick={() => onRemoveInvite(invite.id)}
+                  aria-label="Remove invite"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : null}
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+);
+
 const FriendsPage: React.FC = () => {
   const [friends] = useState(initialFriends);
-  const [invites, setInvites] = useState(initialInvites);
+  const [sentInvites, setSentInvites] = useState(initialSentInvites);
+  const [receivedInvites, setReceivedInvites] = useState(initialReceivedInvites);
   const [searchTerm, setSearchTerm] = useState("");
   const [inviteTarget, setInviteTarget] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -112,13 +242,17 @@ const FriendsPage: React.FC = () => {
     );
   }, [sortedFriends, searchTerm]);
 
-  const activeInvites = useMemo(
-    () => invites.filter((invite) => invite.status !== "declined"),
-    [invites]
+  const activeSentInvites = useMemo(
+    () => sentInvites.filter((invite) => invite.status !== "declined"),
+    [sentInvites]
+  );
+  const activeReceivedInvites = useMemo(
+    () => receivedInvites.filter((invite) => invite.status !== "declined"),
+    [receivedInvites]
   );
   const onlineCount = friends.filter((friend) => friend.online).length;
-  const pendingCount = invites.filter((invite) => invite.status === "pending").length;
-  const acceptedCount = invites.filter((invite) => invite.status === "accepted").length;
+  const invitesReceivedCount = activeReceivedInvites.length;
+  const invitesSentCount = activeSentInvites.length;
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
@@ -155,7 +289,7 @@ const FriendsPage: React.FC = () => {
   };
 
   const handleInvite = (username: string) => {
-    setInvites((prev) => [
+    setSentInvites((prev) => [
       ...prev,
       {
         id: prev.length + 1,
@@ -168,8 +302,28 @@ const FriendsPage: React.FC = () => {
     setInviteTarget("");
   };
 
-  const handleRemoveInvite = (inviteId: number) => {
-    setInvites((prev) => prev.filter((invite) => invite.id !== inviteId));
+  const handleCancelSentInvite = (inviteId: number) => {
+    setSentInvites((prev) => prev.filter((invite) => invite.id !== inviteId));
+  };
+
+  const handleAcceptInvite = (inviteId: number) => {
+    setReceivedInvites((prev) =>
+      prev.map((invite) =>
+        invite.id === inviteId ? { ...invite, status: "accepted" } : invite
+      )
+    );
+  };
+
+  const handleDeclineInvite = (inviteId: number) => {
+    setReceivedInvites((prev) =>
+      prev.map((invite) =>
+        invite.id === inviteId ? { ...invite, status: "declined" } : invite
+      )
+    );
+  };
+
+  const handleRemoveReceivedInvite = (inviteId: number) => {
+    setReceivedInvites((prev) => prev.filter((invite) => invite.id !== inviteId));
   };
 
   const handleToggleSidebar = () => {
@@ -232,14 +386,14 @@ const FriendsPage: React.FC = () => {
                   <span className={styles.tagPill}>Stay ready</span>
                 </div>
                 <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Pending Invites</span>
-                  <span className={styles.statValue}>{pendingCount}</span>
-                  <span className={styles.tagPill}>Awaiting reply</span>
+                  <span className={styles.statLabel}>Invites Sent to You</span>
+                  <span className={styles.statValue}>{invitesReceivedCount}</span>
+                  <span className={styles.tagPill}>Check notifications</span>
                 </div>
                 <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Accepted Invites</span>
-                  <span className={styles.statValue}>{acceptedCount}</span>
-                  <span className={styles.tagPill}>Ready to play</span>
+                  <span className={styles.statLabel}>Invites Sent by You</span>
+                  <span className={styles.statValue}>{invitesSentCount}</span>
+                  <span className={styles.tagPill}>Keep scouting</span>
                 </div>
               </div>
             </div>
@@ -323,42 +477,13 @@ const FriendsPage: React.FC = () => {
               </section>
             )}
 
-            <section className={styles.sectionCard}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Sent Invites</h2>
-              </div>
-
-              {activeInvites.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <strong>No active invites</strong>
-                  <span>Invite new players and build your team.</span>
-                </div>
-              ) : (
-                <div className={styles.inviteList}>
-                  {activeInvites.map((invite) => (
-                    <article key={invite.id} className={styles.inviteItem}>
-                      <div className={styles.inviteDetails}>
-                        <span className={styles.friendName}>{invite.recipient}</span>
-                        <span className={styles.friendMeta}>Sent {invite.sentAt}</span>
-                        <span className={`${styles.statusPill} ${styles[invite.status]}`}>
-                          {invite.status}
-                        </span>
-                      </div>
-                      <div className={styles.inviteActions}>
-                        <button
-                          className={styles.iconButton}
-                          type="button"
-                          onClick={() => handleRemoveInvite(invite.id)}
-                          aria-label="Cancel invite"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
+            <ReceivedInvitesSection
+              invites={activeReceivedInvites}
+              onAcceptInvite={handleAcceptInvite}
+              onDeclineInvite={handleDeclineInvite}
+              onRemoveInvite={handleRemoveReceivedInvite}
+            />
+            <SentInvitesSection invites={activeSentInvites} onCancelInvite={handleCancelSentInvite} />
           </div>
             </div>
           </section>
