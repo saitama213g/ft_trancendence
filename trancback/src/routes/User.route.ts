@@ -30,4 +30,9 @@ export default async function userRoutes( fastify: FastifyInstance, options: Fas
     // const userLevel = query.level ? Number(query.level) : 1; // default level
     return usercontroller.addUser(username); // pass username (required)
   });
+
+  // New search route
+  fastify.get("/search", async (request: FastifyRequest, reply: FastifyReply) => {
+    return usercontroller.searchUsers(request, reply);
+  });
 }

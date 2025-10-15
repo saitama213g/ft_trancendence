@@ -1,5 +1,7 @@
 import {DatabaseClient} from "./Database.client";
 import {Invite} from "../models/Invite.model";
+import {SentInvite} from "../models/Invite.model"
+import {ReceivedInvite} from "../models/Invite.model"
 import { stat } from "fs";
 
 export class InviteRepository {
@@ -10,14 +12,14 @@ export class InviteRepository {
     return this.db.prepare("SELECT * FROM invites").all() as Invite[];
   }
 
-  getSenderInvites(sender_id: number): Invite[]
+  getSenderInvites(sender_id: number): SentInvite[]
   {
-    return this.db.prepare("SELECT * FROM invites WHERE sender_id = ?").all(sender_id) as Invite[];
+    return this.db.prepare("SELECT * FROM invites WHERE sender_id = ?").all(sender_id) as SentInvite[];
   }
 
-  getRecieverInvites(reciever_id: number): Invite[]
+  getRecieverInvites(reciever_id: number): ReceivedInvite[]
   {
-    return this.db.prepare("SELECT * FROM invites WHERE receiver_id = ?").all(reciever_id) as Invite[];
+    return this.db.prepare("SELECT * FROM invites WHERE receiver_id = ?").all(reciever_id) as ReceivedInvite[];
   }
 
   updateStatus(sender_id: number, receiver_id: number, status: string): boolean {

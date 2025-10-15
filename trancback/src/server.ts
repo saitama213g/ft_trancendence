@@ -1,55 +1,61 @@
-import Fastify from "fastify";
-import { Server as SocketIOServer, Socket } from "socket.io";
-import { createServer } from "http";
+import fastify from "fastify";
+import userRoutes from "./routes/User.route";
+import inviteRoutes from "./routes/Invite.routes";
+import friendRoutes from "./routes/Friend.routes";
+import gameRoutes from "./routes/Game.routes";
+import fjwt from '@fastify/jwt';
+import authenticate from "./authenticate";
+import authroutes from "./routes/Auth.routes";
+// @ts-ignore
+import cors from "@fastify/cors"
+declare module 'fastify' {
+  interface FastifyInstance {
+    authenticate: any;
+  }
+}
 
-const fastify = Fastify();
-
-fastify.get("/ping", async () => {
-  return { status: "ok" };
+const app = fastify({ logger: true });
+app.register(fjwt, {
+  secret: 'your-secret-key'
 });
 
-// Create HTTP server manually for Socket.IO
-const httpServer = createServer(fastify.server);
+app.register(userRoutes, { prefix: "/users" }); 
+app.register(inviteRoutes, { prefix: "/invites" });
+app.register(friendRoutes, { prefix: "/friends" });
+app.register(gameRoutes, { prefix: "/games" });
+app.register(authroutes, { prefix: "/login" });
 
-// Attach Socket.IO
-const io = new SocketIOServer(httpServer, {
-  cors: {
-    origin: "*", // allow any origin for testing
-  },
+app.decorate("authenticate", authenticate);
+app.setErrorHandler((error, request, reply) => {
+  // Log the full error (stack trace) to the console or logger
+  request.log.error(error);
+
+  // Detect 404s or custom errors
+  if (error.statusCode === 404) {
+    reply.status(404).send({ message: 'Resource not found' });
+  } else {
+    // Show detailed message only in dev mode
+    const isDev = process.env.NODE_ENV !== 'production';
+    reply.status(500).send({
+      message: isDev ? error.message : 'Internal Server Error',
+      stack: isDev ? error.stack : undefined,
+    });
+  }
 });
 
-var clients: string[] = [];
+// start server
+const start = async () => {
+  try {
+      await app.register(cors, {
+        origin: true, // or ['http://localhost:3000']
+        credentials: true,
+      });
+    await app.listen({ port: 3001 });
+    console.log("Server running on http://localhost:3001");
+  } catch (err) {
+    app.log.error(err);
+    process.exit(1);
+  }
+};
 
-// Listen for socket connections every time a client connects
-io.on("connection", (socket: Socket) => {
-  io.to(socket.id).emit("welcome", socket.id);
-  console.log("User connected:", socket.id);
-  // push socket.id to an array
-  clients.push(socket.id);
-
-  // console.log("socket====>", socket);
-
-  // socket.emit("welcome", "Hello from server!");
-
-  socket.on("message", (msg) => {
-    console.log("Received:", msg);
-    // send to a specific user
-    if (msg.id && clients.includes(msg.id))
-      io.to(msg.id).emit("message", {message: msg.message, socketId: socket.id});
-    else
-      io.to(socket.id).emit("message", {message: msg.message, socketId: socket.id}); // broadcast to everyone including sender
-    
-    // socket.broadcast.emit("message", `User ${socket.id} said: ${msg}`);
-  });
-
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
-});
-
-
-// Start HTTP server (Socket.IO listens here)
-httpServer.listen(3001, () => {
-  console.log("✅ Socket.IO listening on port 3001");
-});
+start();

@@ -1,5 +1,7 @@
 import {InviteRepository} from "../repositories/Invite.repository"
 import {Invite} from "../models/Invite.model"
+import {SentInvite} from "../models/Invite.model"
+import {ReceivedInvite} from "../models/Invite.model"
 import {FriendRepository} from "../repositories/Friend.repository"
 
 export class InviteService{
@@ -11,12 +13,12 @@ export class InviteService{
         return this.inviterepository.getAllInvites();
     }
 
-    GetRecieverInvites(reciever_id:number): Invite[]
+    GetRecieverInvites(reciever_id:number): ReceivedInvite[]
     {
         return this.inviterepository.getRecieverInvites(reciever_id);
     }
 
-    GetSenderInvites(sender_id:number): Invite[]
+    GetSenderInvites(sender_id:number): SentInvite[]
     {
         return this.inviterepository.getSenderInvites(sender_id);
     }

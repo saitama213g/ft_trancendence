@@ -17,6 +17,21 @@ interface Friend {
   avatar: string;
 }
 
+interface User {
+  id: number;
+  username: string;
+  rank: string | null;
+  xp: number;
+  avatar_url: string | null;
+}
+
+// interface Invite {
+//     id: number;                            // Primary key
+//     sender_id: number;                     // References users.id
+//     receiver_id: number;                   // References users.id
+//     status : "pending" | "accepted" | "rejected"; // Default = 'pending'
+// }
+
 interface SentInvite {
   id: number;
   recipient: string;
@@ -91,14 +106,9 @@ const initialFriends: Friend[] = [
 ];
 
 const initialSentInvites: SentInvite[] = [
-  { id: 1, recipient: "Kei Tanaka", status: "pending", sentAt: "Oct 10, 2025" },
-  { id: 2, recipient: "Lucas Chen", status: "accepted", sentAt: "Oct 08, 2025" },
-  { id: 3, recipient: "Priya Singh", status: "declined", sentAt: "Oct 05, 2025" },
 ];
 
 const initialReceivedInvites: ReceivedInvite[] = [
-  { id: 101, sender: "Lena Ortiz", status: "pending", sentAt: "Oct 11, 2025" },
-  { id: 102, sender: "Marcus Reed", status: "accepted", sentAt: "Oct 07, 2025" },
 ];
 
 interface SentInvitesSectionProps {
@@ -225,9 +235,50 @@ const FriendsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [inviteTarget, setInviteTarget] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<string[]>([]);
+  const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const fetchSentInvites = async () => {      
+      if (!token) return;
 
+      try {
+        const response = await fetch("http://localhost:3001/invites/sent", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error((await response.json()).message || "Failed to fetch sent invites");
+
+        const data: SentInvite[] = await response.json();
+        setSentInvites(data);
+      } catch (error) {
+        console.error("Error fetching sent invites:", error);
+        setSentInvites([]);
+      }
+    };
+    const fetchReceivedInvites = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch("http://localhost:3001/invites/received", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error((await response.json()).message || "Failed to fetch received invites");
+
+        const data: ReceivedInvite[] = await response.json();
+        setReceivedInvites(data);
+      } catch (error) {
+        console.error("Error fetching Received invites:", error);
+        setReceivedInvites([]);
+      }
+    };
+    fetchReceivedInvites();
+    fetchSentInvites();
+  }, []); // empty dependency array → runs only once on mount
   const sortedFriends = useMemo(() => {
     return [...friends].sort((a, b) => Number(b.online) - Number(a.online));
   }, [friends]);
@@ -276,30 +327,60 @@ const FriendsPage: React.FC = () => {
 
   const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+      if (!inviteTarget.trim()) {
+        setSearchResults([]); // clear results if nothing entered
+      return;
+    }
     setIsSearching(true);
-    // Simulate API call for user search.
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setIsSearching(false);
 
-    const results = inviteTarget
-      ? [inviteTarget, `${inviteTarget}_01`, `${inviteTarget}_pro`]
-      : [];
+    try {
+      const response = await fetch(
+        `http://localhost:3001/users/search?search=${encodeURIComponent(inviteTarget)}`
+      );
 
-    setSearchResults(results);
+      if (!response.ok) throw new Error((await response.json()).message || "Failed to fetch users");
+      const data: User[] = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setSearchResults([]); // clear if error
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const handleInvite = (username: string) => {
-    setSentInvites((prev) => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        recipient: username,
-        status: "pending",
-        sentAt: new Date().toLocaleDateString(),
-      },
-    ]);
-    setSearchResults((prev) => prev.filter((result) => result !== username));
-    setInviteTarget("");
+  const handleInvite = async (userId: number, username: string) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch("http://localhost:3001/invites/invite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ receiver_id: userId }),
+      });
+
+      if (!response.ok) throw new Error((await response.json()).message || "Failed to send invite");
+
+      const data = await response.json() as SentInvite;
+
+      // Update local state
+      setSentInvites((prev) => [
+        ...prev,
+        {
+          id: data.id ?? prev.length + 1, // or use returned invite ID
+          recipient: username,
+          status: "pending",
+          sentAt: new Date().toLocaleDateString(),
+        },
+      ]);
+      setSearchResults((prev) => prev.filter((result) => result.username !== username));
+      setInviteTarget("");
+    } catch (error) {
+      console.error("Error sending invite:", error);
+    }
   };
 
   const handleCancelSentInvite = (inviteId: number) => {
@@ -459,15 +540,15 @@ const FriendsPage: React.FC = () => {
                 </div>
                 <div className={styles.inviteList}>
                   {searchResults.map((result) => (
-                    <article key={result} className={styles.inviteItem}>
+                    <article key={result.username} className={styles.inviteItem}>
                       <div className={styles.inviteDetails}>
-                        <span className={styles.friendName}>{result}</span>
+                        <span className={styles.friendName}>{result.username}</span>
                         <span className={styles.suggestionMeta}>Suggested user</span>
                       </div>
                       <button
                         className={styles.suggestionButton}
                         type="button"
-                        onClick={() => handleInvite(result)}
+                        onClick={() => handleInvite(result.id, result.username)}
                       >
                         Invite
                       </button>
