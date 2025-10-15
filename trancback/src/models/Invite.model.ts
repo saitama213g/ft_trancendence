@@ -8,6 +8,8 @@ export interface Invite {
 export interface SentInvite {
   id: number;
   recipient: string;
+  recipientname: string;
+  recipientpicture: string;
   status: "pending" | "accepted" | "declined";
   sentAt: string;
 }
@@ -15,6 +17,8 @@ export interface SentInvite {
 export interface ReceivedInvite {
   id: number;
   sender: string;
+  sendername: string;
+  senderpicture: string;
   status: "pending" | "accepted" | "declined";
   sentAt: string;
 }

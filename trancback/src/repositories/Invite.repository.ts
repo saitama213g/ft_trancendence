@@ -12,14 +12,38 @@ export class InviteRepository {
     return this.db.prepare("SELECT * FROM invites").all() as Invite[];
   }
 
-  getSenderInvites(sender_id: number): SentInvite[]
-  {
-    return this.db.prepare("SELECT * FROM invites WHERE sender_id = ?").all(sender_id) as SentInvite[];
+  getSenderInvites(sender_id: number): SentInvite[] {
+    const query = `
+      SELECT 
+        invites.id,
+        invites.status,
+        invites.receiver_id as recipient,
+        users.username as recipientname,
+        COALESCE(users.avatar_url, '/profile/default-avatar.svg') as recipientpicture,
+        CURRENT_TIMESTAMP as sentAt
+      FROM invites
+      JOIN users ON invites.receiver_id = users.id
+      WHERE invites.sender_id = ?
+      ORDER BY invites.id DESC
+    `;
+    return this.db.prepare(query).all(sender_id) as SentInvite[];
   }
 
-  getRecieverInvites(reciever_id: number): ReceivedInvite[]
-  {
-    return this.db.prepare("SELECT * FROM invites WHERE receiver_id = ?").all(reciever_id) as ReceivedInvite[];
+  getRecieverInvites(reciever_id: number): ReceivedInvite[] {
+    const query = `
+      SELECT 
+        invites.id,
+        invites.status,
+        invites.sender_id as sender,
+        users.username as sendername,
+        COALESCE(users.avatar_url, '/profile/default-avatar.svg') as senderpicture,
+        CURRENT_TIMESTAMP as sentAt
+      FROM invites
+      JOIN users ON invites.sender_id = users.id
+      WHERE invites.receiver_id = ?
+      ORDER BY invites.id DESC
+    `;
+    return this.db.prepare(query).all(reciever_id) as ReceivedInvite[];
   }
 
   updateStatus(sender_id: number, receiver_id: number, status: string): boolean {

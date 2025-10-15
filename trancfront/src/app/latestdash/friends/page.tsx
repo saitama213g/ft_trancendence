@@ -25,16 +25,11 @@ interface User {
   avatar_url: string | null;
 }
 
-// interface Invite {
-//     id: number;                            // Primary key
-//     sender_id: number;                     // References users.id
-//     receiver_id: number;                   // References users.id
-//     status : "pending" | "accepted" | "rejected"; // Default = 'pending'
-// }
-
 interface SentInvite {
   id: number;
   recipient: string;
+  recipientname: string;
+  recipientpicture: string;
   status: "pending" | "accepted" | "declined";
   sentAt: string;
 }
@@ -42,6 +37,8 @@ interface SentInvite {
 interface ReceivedInvite {
   id: number;
   sender: string;
+  sendername: string;
+  senderpicture: string;
   status: "pending" | "accepted" | "declined";
   sentAt: string;
 }
@@ -131,8 +128,17 @@ const SentInvitesSection: React.FC<SentInvitesSectionProps> = ({ invites, onCanc
       <div className={styles.inviteList}>
         {invites.map((invite) => (
           <article key={invite.id} className={styles.inviteItem}>
+            <div className={styles.friendAvatar}>
+              <Image
+                src="/profile/default-avatar.svg"
+                alt={`${invite.recipient}'s avatar`}
+                width={44}
+                height={44}
+                className={styles.friendAvatarImage}
+              />
+            </div>
             <div className={styles.inviteDetails}>
-              <span className={styles.friendName}>{invite.recipient}</span>
+              <span className={styles.friendName}>@{invite.recipientname}</span>
               <span className={styles.friendMeta}>Sent {invite.sentAt}</span>
               <span className={`${styles.statusPill} ${styles[invite.status]}`}>
                 {invite.status}
@@ -184,9 +190,18 @@ const ReceivedInvitesSection: React.FC<ReceivedInvitesSectionProps> = ({
       <div className={styles.inviteList}>
         {invites.map((invite) => (
           <article key={invite.id} className={styles.inviteItem}>
+            <div className={styles.friendAvatar}>
+              <Image
+                src="/profile/default-avatar.svg"
+                alt={`${invite.sender}'s avatar`}
+                width={44}
+                height={44}
+                className={styles.friendAvatarImage}
+              />
+            </div>
             <div className={styles.inviteDetails}>
-              <span className={styles.friendName}>{invite.sender}</span>
-              <span className={styles.friendMeta}>Invited you on {invite.sentAt}</span>
+              <span className={styles.friendName}>@ "{invite.sendername}"</span>
+              <span className={styles.friendMeta}>Invited you on "{invite.sentAt}"</span>
               <span className={`${styles.statusPill} ${styles[invite.status]}`}>
                 {invite.status}
               </span>
@@ -270,6 +285,8 @@ const FriendsPage: React.FC = () => {
         if (!response.ok) throw new Error((await response.json()).message || "Failed to fetch received invites");
 
         const data: ReceivedInvite[] = await response.json();
+        console.log("the received invites are:");
+        console.log(data);
         setReceivedInvites(data);
       } catch (error) {
         console.error("Error fetching Received invites:", error);
@@ -370,11 +387,13 @@ const FriendsPage: React.FC = () => {
       setSentInvites((prev) => [
         ...prev,
         {
-          id: data.id ?? prev.length + 1, // or use returned invite ID
+          id: data.id ?? prev.length + 1,
           recipient: username,
+          recipientname: username, // or data.recipientname if backend provides it
+          recipientpicture: "",    // fill from backend if available
           status: "pending",
           sentAt: new Date().toLocaleDateString(),
-        },
+        } as SentInvite,
       ]);
       setSearchResults((prev) => prev.filter((result) => result.username !== username));
       setInviteTarget("");
