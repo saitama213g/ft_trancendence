@@ -33,6 +33,12 @@ export class UserRepository {
       .all(`%${query}%`) as User[];
   }
 
+  searchUsersExcept(query: string, excludeUserId: number): User[] {
+    return this.db
+      .prepare("SELECT id, username, rank, xp, avatar_url FROM users WHERE username LIKE ? AND id != ? LIMIT 10")
+      .all(`%${query}%`, excludeUserId) as User[];
+  }
+
   async createUser(email: string, username: string, password: string) {
     const result = this.db
       .prepare("INSERT INTO users (email, username, password_hash) VALUES (?, ?, ?)")
@@ -52,5 +58,9 @@ export class UserRepository {
   userExists(id: number): boolean {
     const user = this.db.prepare("SELECT 1 FROM users WHERE id = ?").get(id);
     return user !== undefined;
+  }
+
+  getAllExcept(excludeUserId: number): User[] {
+    return this.db.prepare("SELECT id, username, rank, xp, avatar_url FROM users WHERE id != ?").all(excludeUserId) as User[];
   }
 }

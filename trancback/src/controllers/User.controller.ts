@@ -11,6 +11,11 @@ export class UserController {
     getAllUsers() {
         return this.userservice.getAllUsers();
     }
+
+    getAllUsersExceptCurrent(request: FastifyRequest) {
+        const user = request.user as { id: number };
+        return this.userservice.getAllUsersExcept(user.id);
+    }
     addUser(username: string) {
         return this.userservice.addUser(username);
     }
@@ -39,7 +44,8 @@ export class UserController {
             return reply.code(400).send({ error: 'Search query is required' });
         }
 
-        const users = this.userservice.searchUsers(search);
+        const user = request.user as { id: number };
+        const users = this.userservice.searchUsersExcept(search, user.id);
         return reply.send(users);
     }
 

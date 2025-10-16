@@ -15,10 +15,19 @@ export class InviteController {
         if (!reciever_id || !sender_id) {
             throw new Error("Both reciever_id and sender_id are required");
         }
+
+        // Check if users are already friends
+        const alreadyFriends = this.inviteservice.areFriends(sender_id, reciever_id);
+        if (alreadyFriends) {
+            return { success: false, message: "You are already friends with this user" };
+        }
+
+        // Check if invite already exists
         const inviteExists = this.inviteservice.inviteExists(sender_id, reciever_id);
         if (inviteExists) {
             return { success: false, message: "Invite already exists" };
         }
+
         return this.inviteservice.addInvite(reciever_id, sender_id);
     }
     acceptInvite(sender_id: number, receiver_id: number) {

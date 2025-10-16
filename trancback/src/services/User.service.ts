@@ -21,6 +21,10 @@ export class UserService {
     return this.userRepository.getAll();
   }
 
+  getAllUsersExcept(excludeUserId: number): User[] {
+    return this.userRepository.getAllExcept(excludeUserId);
+  }
+
   addUser(username: string): User {
     return this.userRepository.addUser(username);
   }
@@ -41,6 +45,13 @@ export class UserService {
       return [];
     }
     return this.userRepository.searchUsers(query);
+  }
+
+  searchUsersExcept(query: string, excludeUserId: number): User[] {
+    if (!query) {
+      return [];
+    }
+    return this.userRepository.searchUsersExcept(query, excludeUserId);
   }
 
   async registerUser(email: string, username: string, password: string) {

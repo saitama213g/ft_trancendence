@@ -51,4 +51,9 @@ export class InviteService{
     inviteExists(sender_id: number, receiver_id: number): boolean {
         return this.inviterepository.inviteExists(sender_id, receiver_id);
     }
+
+    // Helper to check if users are already friends
+    areFriends(user_id: number, friend_id: number): boolean {
+        return this.friendRepo.areFriends(user_id, friend_id);
+    }
 }

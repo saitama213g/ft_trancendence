@@ -362,6 +362,7 @@ const FriendsPage: React.FC = () => {
   }, []);
 
   const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
+    const token = localStorage.getItem("token");
     event.preventDefault();
       if (!inviteTarget.trim()) {
         setSearchResults([]); // clear results if nothing entered
@@ -371,7 +372,11 @@ const FriendsPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/users/search?search=${encodeURIComponent(inviteTarget)}`
+        `http://localhost:3001/users/search?search=${encodeURIComponent(inviteTarget)}`,{
+          headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        }
       );
 
       if (!response.ok) throw new Error((await response.json()).message || "Failed to fetch users");

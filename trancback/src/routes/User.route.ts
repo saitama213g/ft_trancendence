@@ -5,8 +5,8 @@ const usercontroller = new UserController();
 // const invitecontroller = new InviteController();
 
 export default async function userRoutes( fastify: FastifyInstance, options: FastifyPluginOptions) {
-  fastify.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
-    return usercontroller.getAllUsers();
+  fastify.get("/", { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    return usercontroller.getAllUsersExceptCurrent(request);
   });
 
   fastify.post("/register", async (request: FastifyRequest, reply: FastifyReply) => {
@@ -32,7 +32,7 @@ export default async function userRoutes( fastify: FastifyInstance, options: Fas
   });
 
   // New search route
-  fastify.get("/search", async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get("/search", { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
     return usercontroller.searchUsers(request, reply);
   });
 }
