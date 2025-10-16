@@ -30,7 +30,7 @@ export default async function inviteRoutes(fastify: FastifyInstance, options: Fa
       return reply.status(400).send({ message: "Invalid sender ID" });
     }
 
-    return invitecontroller.addInvite(sender_id, body.receiver_id);
+    return invitecontroller.addInvite(body.receiver_id, sender_id);
   });
 
   // ✅ Accept invite

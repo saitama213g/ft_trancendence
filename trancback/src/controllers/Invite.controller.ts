@@ -15,13 +15,17 @@ export class InviteController {
         if (!reciever_id || !sender_id) {
             throw new Error("Both reciever_id and sender_id are required");
         }
+        const inviteExists = this.inviteservice.inviteExists(sender_id, reciever_id);
+        if (inviteExists) {
+            return { success: false, message: "Invite already exists" };
+        }
         return this.inviteservice.addInvite(reciever_id, sender_id);
     }
     acceptInvite(sender_id: number, receiver_id: number) {
         // Check if invite exists
         const inviteExists = this.inviteservice.inviteExists(sender_id, receiver_id);
         if (!inviteExists) {
-            return { success: false, message: "Invite does not exist" };
+            return { success: false, message: "Invite does not exist"};
         }
     
         // Update invite status

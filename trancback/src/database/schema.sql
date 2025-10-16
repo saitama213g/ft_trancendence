@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
   levell INTEGER UNIQUE,
   rank TEXT,
   xp INTEGER DEFAULT 0,
-  status TEXT
+  status TEXT CHECK(status IN ('online', 'offline', 'away')) DEFAULT 'offline',
+  last_active DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Games Table

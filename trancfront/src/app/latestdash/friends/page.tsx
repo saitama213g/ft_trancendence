@@ -10,7 +10,7 @@ import styles from "./page.module.css";
 
 interface Friend {
   id: number;
-  name: string;
+  user_id: string;
   username: string;
   online: boolean;
   lastActive: string;
@@ -27,7 +27,7 @@ interface User {
 
 interface SentInvite {
   id: number;
-  recipient: string;
+  recipient: number;
   recipientname: string;
   recipientpicture: string;
   status: "pending" | "accepted" | "declined";
@@ -36,7 +36,7 @@ interface SentInvite {
 
 interface ReceivedInvite {
   id: number;
-  sender: string;
+  sender: number;
   sendername: string;
   senderpicture: string;
   status: "pending" | "accepted" | "declined";
@@ -46,7 +46,7 @@ interface ReceivedInvite {
 const initialFriends: Friend[] = [
   {
     id: 1,
-    name: "Alex Morgan",
+    user_id: "Alex Morgan",
     username: "alexm",
     online: true,
     lastActive: "Online now",
@@ -54,7 +54,7 @@ const initialFriends: Friend[] = [
   },
   {
     id: 2,
-    name: "Sofia Alvarez",
+    user_id: "Sofia Alvarez",
     username: "sofia.a",
     online: true,
     lastActive: "Online now",
@@ -62,7 +62,7 @@ const initialFriends: Friend[] = [
   },
   {
     id: 3,
-    name: "Jordan Lee",
+    user_id: "Jordan Lee",
     username: "jordanlee",
     online: false,
     lastActive: "Last seen 15m ago",
@@ -70,7 +70,7 @@ const initialFriends: Friend[] = [
   },
   {
     id: 4,
-    name: "Maya Patel",
+    user_id: "Maya Patel",
     username: "maya.p",
     online: false,
     lastActive: "Last seen 2h ago",
@@ -78,7 +78,7 @@ const initialFriends: Friend[] = [
   },
   {
     id: 5,
-    name: "Maya Patel",
+    user_id: "Maya Patel",
     username: "maya.p",
     online: false,
     lastActive: "Last seen 2h ago",
@@ -86,7 +86,7 @@ const initialFriends: Friend[] = [
   },
   {
     id: 6,
-    name: "Maya Patel",
+    user_id: "Maya Patel",
     username: "maya.p",
     online: false,
     lastActive: "Last seen 2h ago",
@@ -94,7 +94,7 @@ const initialFriends: Friend[] = [
   },
   {
     id: 7,
-    name: "Maya Patel",
+    user_id: "Maya Patel",
     username: "maya.p",
     online: false,
     lastActive: "Last seen 2h ago",
@@ -165,8 +165,8 @@ const SentInvitesSection: React.FC<SentInvitesSectionProps> = ({ invites, onCanc
 
 interface ReceivedInvitesSectionProps {
   invites: ReceivedInvite[];
-  onAcceptInvite: (inviteId: number) => void;
-  onDeclineInvite: (inviteId: number) => void;
+  onAcceptInvite: (senderId: number, sender_id:number) => void;
+  onDeclineInvite: (senderId: number, sender_id:number) => void;
   onRemoveInvite: (inviteId: number) => void;
 }
 
@@ -211,14 +211,14 @@ const ReceivedInvitesSection: React.FC<ReceivedInvitesSectionProps> = ({
                 <button
                   className={`${styles.actionButton} ${styles.acceptButton}`}
                   type="button"
-                  onClick={() => onAcceptInvite(invite.id)}
+                  onClick={() => onAcceptInvite(invite.sender, invite.id)}
                 >
                   Accept
                 </button>
                 <button
                   className={`${styles.actionButton} ${styles.declineButton}`}
                   type="button"
-                  onClick={() => onDeclineInvite(invite.id)}
+                  onClick={() => onDeclineInvite(invite.sender, invite.id)}
                 >
                   Decline
                 </button>
@@ -244,7 +244,7 @@ const ReceivedInvitesSection: React.FC<ReceivedInvitesSectionProps> = ({
 );
 
 const FriendsPage: React.FC = () => {
-  const [friends] = useState(initialFriends);
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [sentInvites, setSentInvites] = useState(initialSentInvites);
   const [receivedInvites, setReceivedInvites] = useState(initialReceivedInvites);
   const [searchTerm, setSearchTerm] = useState("");
@@ -265,8 +265,9 @@ const FriendsPage: React.FC = () => {
         });
 
         if (!response.ok) throw new Error((await response.json()).message || "Failed to fetch sent invites");
-
         const data: SentInvite[] = await response.json();
+        console.log("the sent invites are:");
+        console.log(data);
         setSentInvites(data);
       } catch (error) {
         console.error("Error fetching sent invites:", error);
@@ -283,7 +284,6 @@ const FriendsPage: React.FC = () => {
         });
 
         if (!response.ok) throw new Error((await response.json()).message || "Failed to fetch received invites");
-
         const data: ReceivedInvite[] = await response.json();
         console.log("the received invites are:");
         console.log(data);
@@ -293,6 +293,26 @@ const FriendsPage: React.FC = () => {
         setReceivedInvites([]);
       }
     };
+    const fetchFriends = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch("http://localhost:3001/friends", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (!response.ok ) throw new Error((await response.json()).message || "Failed to fetch friends list");
+        const data: Friend[] = await response.json();
+        console.log("the friends");
+        console.log(data);
+        setFriends(data);
+      }catch(error)
+      {
+        console.error("Error fetching friends list: ", error);
+        setFriends([]);
+      }
+    };
+    fetchFriends();
     fetchReceivedInvites();
     fetchSentInvites();
   }, []); // empty dependency array → runs only once on mount
@@ -305,7 +325,6 @@ const FriendsPage: React.FC = () => {
       return sortedFriends;
     }
     return sortedFriends.filter((friend) =>
-      friend.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       friend.username.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [sortedFriends, searchTerm]);
@@ -382,13 +401,16 @@ const FriendsPage: React.FC = () => {
       if (!response.ok) throw new Error((await response.json()).message || "Failed to send invite");
 
       const data = await response.json() as SentInvite;
-
+      console.log("the invite response data is:");
+      console.log(data);
+      // console.log("the sender id is: ");
+      // console.log(data.id);
       // Update local state
       setSentInvites((prev) => [
         ...prev,
         {
           id: data.id ?? prev.length + 1,
-          recipient: username,
+          recipient: userId,
           recipientname: username, // or data.recipientname if backend provides it
           recipientpicture: "",    // fill from backend if available
           status: "pending",
@@ -406,7 +428,31 @@ const FriendsPage: React.FC = () => {
     setSentInvites((prev) => prev.filter((invite) => invite.id !== inviteId));
   };
 
-  const handleAcceptInvite = (inviteId: number) => {
+  const handleAcceptInvite = async (senderId: number, inviteId:number) => {
+    const token = localStorage.getItem("token");
+    try {
+      console.log("invite id :");
+      console.log(senderId);
+      const response = await fetch("http://localhost:3001/invites/accept", {
+        method : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ sender_id: senderId }),
+        });
+      if (!response.ok) throw new Error((await response.json()).message || "Failed to accept invite");
+      console.log("Invite accepted successfully");
+      const data = await response.json();
+      console.log(data);
+      // console.log(response.);
+    }catch(error)
+    {
+      console.error("Error accepting invite:", error);
+      return;
+    }
+
+
     setReceivedInvites((prev) =>
       prev.map((invite) =>
         invite.id === inviteId ? { ...invite, status: "accepted" } : invite
@@ -414,7 +460,23 @@ const FriendsPage: React.FC = () => {
     );
   };
 
-  const handleDeclineInvite = (inviteId: number) => {
+  const handleDeclineInvite = async (senderId: number, inviteId:number) => {
+    const token = localStorage.getItem("token");
+    try{
+      const response = await fetch("http://localhost:3001/invites/decline", {
+        method : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ sender_id: senderId }),
+        });
+      if (!response.ok) throw new Error((await response.json()).message || "Failed to decline invite");
+    }catch(error)
+    {
+      console.error("Error declining invite:", error);
+      return;
+    }
     setReceivedInvites((prev) =>
       prev.map((invite) =>
         invite.id === inviteId ? { ...invite, status: "declined" } : invite
@@ -523,8 +585,8 @@ const FriendsPage: React.FC = () => {
                     <article key={friend.id} className={styles.friendItem}>
                       <div className={styles.friendAvatar}>
                         <Image
-                          src={friend.avatar}
-                          alt={`${friend.name}'s avatar`}
+                          src={friend.avatar || "/profile/default-avatar.svg"}
+                          alt={`${friend.username}'s avatar`}
                           width={44}
                           height={44}
                           className={styles.friendAvatarImage}
@@ -535,7 +597,7 @@ const FriendsPage: React.FC = () => {
                         />
                       </div>
                       <div className={styles.friendInfo}>
-                        <span className={styles.friendName}>{friend.name}</span>
+                        <span className={styles.friendName}>{friend.username}</span>
                         <span className={styles.friendUsername}>@{friend.username}</span>
                       </div>
                       <div className={styles.friendStatusBlock}>

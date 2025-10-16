@@ -30,9 +30,33 @@ export class FriendRepository {
 
   // Get all friends of a specific user
   getFriends(user_id: number): Friend[] {
-    return db
-      .prepare(`SELECT * FROM friends WHERE user_id = ? OR friend_id = ?`)
-      .all(user_id, user_id) as Friend[];
+    const query = `
+      SELECT 
+        friends.id,
+        CASE 
+          WHEN friends.user_id = ? THEN friends.friend_id
+          ELSE friends.user_id
+        END as user_id,
+        users.username,
+        CASE 
+          WHEN users.status = 'online' THEN 1
+          ELSE 0
+        END as online,
+        COALESCE(users.last_active, CURRENT_TIMESTAMP) as lastActive,
+        COALESCE(users.avatar_url, '/profile/default-avatar.svg') as avatar
+      FROM friends
+      JOIN users ON (
+        CASE 
+          WHEN friends.user_id = ? THEN users.id = friends.friend_id
+          ELSE users.id = friends.user_id
+        END
+      )
+      WHERE (friends.user_id = ? OR friends.friend_id = ?)
+        AND friends.status = 'friends'
+      ORDER BY users.status DESC, users.last_active DESC
+    `;
+    
+    return db.prepare(query).all(user_id, user_id, user_id, user_id) as Friend[];
   }
 
   // Check if two users are already friends
